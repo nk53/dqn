@@ -6,4 +6,4 @@ if [ "$CONDA_DEFAULT_ENV" != "kgpu" ]; then
     exit 1
 fi
 
-pip install tf-nightly-gpu tf-nightly keras
+pip install tf-nightly-gpu tf-nightly keras gym[atari]

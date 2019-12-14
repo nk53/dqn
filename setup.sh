@@ -20,7 +20,7 @@ fi
 
 target_env_exists=$(conda env list | grep -i kgpu)
 if [ -n "$target_env_exists" ]; then
-    echo "Similar target environment to 'kpu' name exists:"
+    echo "Similar target environment to 'kgpu' name exists:"
     echo $target_env_exists
     echo "To remove the environment use \`conda env remove --name env_name\`"
     echo "Aborting."

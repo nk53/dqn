@@ -27,7 +27,6 @@ if [ -n "$target_env_exists" ]; then
     exit 4
 fi
 
-conda env create kgpu
 conda create --name kgpu python=3.6
 conda install --name kgpu cudnn blas cudatoolkit
 

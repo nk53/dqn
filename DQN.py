@@ -81,7 +81,7 @@ class DQNmodel(object):
         # variables controlling exploration (tendency to pick random action)
         self.initial_exploration_rate = 1.0
         self.final_exploration_rate = 0.1
-        self.annealing_steps = 10**5
+        self.annealing_steps = 10**6
         self.exploration_rate_reduction = (self.initial_exploration_rate - self.final_exploration_rate)/self.annealing_steps
         self.current_exploration_rate = self.initial_exploration_rate
 
@@ -109,7 +109,6 @@ class DQNmodel(object):
         model.add(Dense(num_actions))
         
         model.compile(optimizer=adam, loss=Huber(delta=1.0)) #or loss=mean_squared_error, or optimizer=adam?
-        #model.compile(optimizer=rmsprop, loss=Huber(delta=1.0)) #or loss=mean_squared_error, or optimizer=adam?
         return model
 
     @staticmethod
@@ -213,10 +212,6 @@ class DQNmodel(object):
 
         backup_folder = backup_folder or self.backup_folder
 
-        # doing this in 
-        #with open(os.path.join(backup_folder, "replay_memory.pkl")) as h:
-        #  transitions = pickle.load(h)
-
         with open(os.path.join(backup_folder, "settings.txt"), "r") as h:
             settings = json.load(h)
 
@@ -231,19 +226,9 @@ class DQNmodel(object):
         self.__dict__.update(**settings)
         self.__dict__.update(**kwargs)
 
-        # rmsprop settings
-        learning_rate=0.00025
-        momentum=0.95
-        added_constant=0.01
-
-        rmsprop = RMSprop(lr=learning_rate, rho=momentum, epsilon=added_constant)
-
         self.model = load_model(os.path.join(backup_folder, "model.h5"))
-        self.model.compile(optimizer=rmsprop, loss=Huber(delta=1.0))
         self.target_model = load_model(os.path.join(backup_folder, "target_model.h5"))
 
-        self.target_model.compile(optimizer=rmsprop, loss=Huber(delta=1.0))
-        
         # return transitions
         replay_mem_file = os.path.join(backup_folder, "replay_memory.pkl")
         if not os.path.exists(replay_mem_file):

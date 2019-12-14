@@ -28,7 +28,7 @@ if [ -n "$target_env_exists" ]; then
 fi
 
 conda create --name kgpu python=3.6
-conda install --name kgpu cudnn blas cudatoolkit
+conda install --name kgpu cudnn blas cudatoolkit pytz lz4
 
 echo To finish up installation, run the following:
 echo 'conda activate kgpu'

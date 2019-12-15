@@ -66,12 +66,13 @@ class DQNmodel(object):
         self._setup(num_actions, backup_location, backup_frequency, use_convolutions)
 
     def set_target_model(self):
-        self.target_model.set_weights(self.model.get_weights)
+        self.target_model.set_weights(self.model.get_weights())
         self.updates_since_last_reset = 0
     
     def _setup(self, num_actions, backup_location, backup_frequency, use_convolutions=False):
         self.output_size = num_actions
         self.model = self.init_model(num_actions) if use_convolutions else self.init_model_no_convolutions(num_actions)
+        self.target_model = clone_model(self.model)
         self.set_target_model()
 
         # variables for determining when to update the target model

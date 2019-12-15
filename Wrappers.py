@@ -46,9 +46,8 @@ class RecordInfo(gym.Wrapper):
         self.tags = info_tags # the names of labels in info
 
         # try to init the empty file
-        if os.path.exists(self.path) and not overwritefile:
-            raise Exception("File exists. Delete or set overwritefile to True.")
-        open(self.path, "w").close() # erase the file
+        if overwritefile or not os.path.exists(self.path):
+            open(self.path, "w").close() # erase the file
 
 
     def step(self, action):

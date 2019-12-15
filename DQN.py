@@ -139,26 +139,24 @@ class DQNmodel(object):
         """
 
         mini_batch = random.sample(transitions, mini_batch_size)
-        #mini_batch = reduce_sample_dims(mini_batch)
         start_states, actions, rewards, final_states, dones = map(np.array, zip(*mini_batch))
 
-        # for each of the final states in the batch, 
-        # get the scores for each of the actions according to the target model
-        # use target_model NOT model !!!
+        current_scores = self.model.predict(start_states, batch_size=mini_batch_size)
         action_scores = self.target_model.predict(final_states, batch_size=mini_batch_size) 
-        best_actions = [np.argmax(i) for i in action_scores] # for each transition in batch, determine the best action
         
-        # for each in batch, extract the score of the best action, unless done is True, then use zero
-        best_scores = np.array([(scores[act] if not done else 0) for scores, act, done in zip(action_scores, best_actions, dones)])
-        yjs = (rewards + gamma * best_scores).reshape(mini_batch_size, 1) # target values
+        best_actions = np.argmax(action_scores, 1) # for each transition in batch, determine the best action
+        best_scores = np.max(action_scores)
+        scores = rewards + gamma * best_scores * np.piecewise(best_scores, [dones, dones != True], funclist=[0, 1])
 
-        ## usage: to_categorical(labels, num_classes)
-        action_encodings = to_categorical(actions, num_classes=self.output_size) 
-        one_hot_yjs = action_encodings * yjs # broadcast multiply
+        # overwrite the current score for the action with the target score
+        # allow all other scores to remain the same
+        target_scores = current_scores
+        for n, a in enumerate(actions):
+            target_scores[n, a] = scores[n]
 
         # print loss after every model reset
         verbose = self.updates_since_last_reset == 0
-        self.model.fit(start_states, one_hot_yjs, verbose=verbose)
+        self.model.fit(start_states, target_scores, verbose=verbose)
        
         # do update on reset count and reset model if necessary
         self.number_of_updates += 1

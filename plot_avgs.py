@@ -29,7 +29,7 @@ while True:
     avgs = read_avgs()
     plt.plot(avgs[:,1], avgs[:,2])
     plt.show()
-    response = input("Continue? [Y/n]")
+    response = input("Continue? [Y/n] ")
     if response:
         response = response.lower()
         if response[0] == 'n':

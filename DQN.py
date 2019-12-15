@@ -145,7 +145,7 @@ class DQNmodel(object):
         action_scores = self.target_model.predict(final_states, batch_size=mini_batch_size) 
         
         best_actions = np.argmax(action_scores, 1) # for each transition in batch, determine the best action
-        best_scores = np.max(action_scores)
+        best_scores = np.max(action_scores, 1)
         scores = rewards + gamma * best_scores * np.piecewise(best_scores, [dones, dones != True], funclist=[0, 1])
 
         # overwrite the current score for the action with the target score
@@ -247,16 +247,13 @@ class DQNmodel(object):
         save a training session
         """
         backup_folder = backup_folder or self.backup_folder
-
-        #rename current backup_folder
         backup_bak = backup_folder+"bak"
-        if os.path.isdir(backup_folder):
-            os.rename(backup_folder, backup_bak)
 
-        # make new backup_folder
-        if not os.path.isdir(backup_folder):
-            os.mkdir(backup_folder)
-        
+        # backup the backup folder
+        if os.path.isdir(backup_folder):
+            shutil.copytree(backup_folder, backup_bak)
+
+        # overwrite models in the primary backup
         self.model.save(os.path.join(backup_folder, "model.h5"))
         self.target_model.save(os.path.join(backup_folder, "target_model.h5"))
         
@@ -280,11 +277,11 @@ class DQNmodel(object):
         settings["last_backup_time"] = to_dict(settings["last_backup_time"])
         settings["time_of_next_backup"] = to_dict(settings["time_of_next_backup"])
 
+        # overwrite settings in primary backup
         with open(os.path.join(backup_folder, "settings.txt"), "w") as h:
           json.dump(settings, h)
 
         # backup complete, so previous backup can be removed
         if os.path.isdir(backup_bak):
             shutil.rmtree(backup_bak)
-
 

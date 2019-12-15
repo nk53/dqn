@@ -50,7 +50,7 @@ env = wrappers.FrameStack(env, 4, lz4_compress=True)
 
 if calc_rolling_avg:
     env = RollingMeanReturn(env, window=100)
-    env = RecordInfo(env, rolling_avgs_file, ["episode"], overwritefile=True)
+    env = RecordInfo(env, rolling_avgs_file, ["episode"], overwritefile=False)
 
 # try to resume training, or start new training example
 try:

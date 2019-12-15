@@ -146,7 +146,7 @@ class DQNmodel(object):
         
         best_actions = np.argmax(action_scores, 1) # for each transition in batch, determine the best action
         best_scores = np.max(action_scores, 1)
-        scores = rewards + gamma * best_scores * np.piecewise(best_scores, [dones, dones != True], funclist=[0, 1])
+        scores = rewards + gamma * best_scores * (dones == False)
 
         # overwrite the current score for the action with the target score
         # allow all other scores to remain the same

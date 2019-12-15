@@ -66,7 +66,7 @@ class DQNmodel(object):
         self._setup(num_actions, backup_location, backup_frequency, use_convolutions)
 
     def set_target_model(self):
-        self.target_model = clone_model(self.model)
+        self.target_model.set_weights(self.model.get_weights)
         self.updates_since_last_reset = 0
     
     def _setup(self, num_actions, backup_location, backup_frequency, use_convolutions=False):

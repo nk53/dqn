@@ -76,13 +76,18 @@ class DQNmodel(object):
         self.set_target_model()
 
         # variables for determining when to update the target model
+        if use_convolutions:
+            self.reset_frequency = 10000
+            self.annealing_steps = 10**6
+        else:
+            self.reset_frequency = 5000
+            self.annealing_steps = 2.5E5
+
         self.number_of_updates = 0
-        self.reset_frequency = 10000
 
         # variables controlling exploration (tendency to pick random action)
         self.initial_exploration_rate = 1.0
         self.final_exploration_rate = 0.1
-        self.annealing_steps = 10**6
         self.exploration_rate_reduction = (self.initial_exploration_rate - self.final_exploration_rate)/self.annealing_steps
         self.current_exploration_rate = self.initial_exploration_rate
 

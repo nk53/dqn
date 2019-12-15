@@ -1,6 +1,29 @@
 #!/usr/bin/env python3
 #import keras
-import os
+import argparse
+import os, sys
+
+parser = argparse.ArgumentParser(description="Trains a DQN model for either CartPole or StarGunner")
+parser.add_argument('env', nargs='?', help="Environment (e.g., StarGunner-v4)")
+args = parser.parse_args()
+
+if args.env == None:
+    default_envs = {
+        '1': 'CartPole-v0',
+        '2': 'StarGunnerNoFrameskip-v4',
+    }
+    prompt = os.linesep.join(
+        ["What environment? Enter the name, or use the '1' or '2' shortcuts below:",
+        "[1] CartPole-v0 (default)",
+        "[2] StarGunnerNoFrameskip-v4", "> "])
+    env_name = input(prompt)
+    if not env_name:
+        env_name = "CartPole-v0"
+    elif env_name in default_envs:
+        env_name = default_envs[env_name]
+else:
+    env_name = args.env
+
 
 folder = "data"
 logfile = os.path.join(folder, "logfile.txt")
@@ -13,7 +36,6 @@ if not os.path.exists(folder):
     print(msg)
     os.mkdir(folder)
 elif os.path.isfile(folder):
-    import sys
     msg = "Error: output directory '{}' already exists and is a regular file."
     msg = msg.format(folder)
     msg += " Please remove or rename it."
@@ -21,19 +43,15 @@ elif os.path.isfile(folder):
     sys.exit(1)
 
 import gym
-import DQN
-import GymTrainer as gt
 import importlib 
 import tensorflow as tf
 from Wrappers import *
 from gym import wrappers
 from resize_observation_keep_dims import ResizeObservationKeepDims
 
-env_name = 'CartPole-v0'
-#env_name = 'StarGunnerNoFrameskip-v4'
-
 # setup
 env = gym.make(env_name)
+print("Using environment:", env_name)
 if 'StarGunner' in env_name:
     use_conv = True
     env = gym.wrappers.AtariPreprocessing(env, frame_skip=4,
@@ -51,6 +69,9 @@ env = wrappers.FrameStack(env, 4, lz4_compress=True)
 if calc_rolling_avg:
     env = RollingMeanReturn(env, window=100)
     env = RecordInfo(env, rolling_avgs_file, ["episode"], overwritefile=False)
+
+import DQN
+import GymTrainer as gt
 
 # try to resume training, or start new training example
 try:

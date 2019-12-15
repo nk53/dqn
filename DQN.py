@@ -107,14 +107,13 @@ class DQNmodel(object):
     @staticmethod 
     def init_model_no_convolutions(num_actions, learning_rate=0.00025, momentum=0.95, added_constant=0.01):
         rmsprop = RMSprop(lr=learning_rate, rho=momentum, epsilon=added_constant)
-        adam = Adam(lr=learning_rate, clipvalue=1.)
         model = Sequential()
         model.add(Dense(8, input_shape=(4,4), activation="relu"))
         model.add(Dropout(0.05))
         model.add(Flatten())
         model.add(Dense(num_actions))
         
-        model.compile(optimizer=adam, loss=Huber(delta=1.0)) #or loss=mean_squared_error, or optimizer=adam?
+        model.compile(optimizer=rmsprop, loss=Huber(delta=1.0)) #or loss=mean_squared_error, or optimizer=adam?
         return model
 
     @staticmethod
